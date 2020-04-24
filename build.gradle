@@ -38,11 +38,3 @@ dependencies {
 test {
     useJUnitPlatform()
 }
-
-task fatJar(type: Jar) {
-    manifest {
-        attributes 'Main-Class': 'ru.sberbank.card2card.Card2cardApplication'
-    }
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-}
