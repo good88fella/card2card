@@ -18,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(properties = {"spring.datasource.url=jdbc:postgresql://localhost:5432/card2card_db_test"},
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AuthenticationRestControllerTest {
 
     @Autowired

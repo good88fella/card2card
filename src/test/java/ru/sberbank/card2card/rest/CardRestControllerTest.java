@@ -15,7 +15,6 @@ import ru.sberbank.card2card.exceptions.CardAlreadyExistsException;
 import ru.sberbank.card2card.exceptions.CardNotFoundException;
 import ru.sberbank.card2card.exceptions.InvalidCardNumberException;
 
-import java.util.Collections;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,7 +30,7 @@ class CardRestControllerTest {
     @Autowired
     private PrepareTestDataBase prepareTestDataBase;
     @Autowired
-    private AuthenticationRestController authenticationRestController;
+    private PrepareTestTemplateHeaders prepareTestTemplateHeaders;
 
     private final String username = "user1";
     private final String password = "123456";
@@ -39,31 +38,13 @@ class CardRestControllerTest {
     @BeforeAll
     public void getRestTemplateWithAuthTokenInHeadersAndInsertValuesInDataBase() {
         prepareTestDataBase.insertValues();
-        AuthRequestDto requestDto = new AuthRequestDto();
-        requestDto.setUsername(username);
-        requestDto.setPassword(password);
-        ResponseEntity<AuthResponseDto> responseEntity = authenticationRestController.login(requestDto);
-
-        template.getRestTemplate().setInterceptors(
-                Collections.singletonList((request, body, execution) -> {
-                    request.getHeaders()
-                            .add("Authorization",
-                                    "Bearer_" + Objects.requireNonNull(responseEntity.getBody()).getToken());
-                    return execution.execute(request, body);
-                })
-        );
+        prepareTestTemplateHeaders.prepareHeaders(template, username, password);
     }
 
     @AfterAll
     public void clearHeadersAndDataBase() {
         prepareTestDataBase.clearTables();
-        template.getRestTemplate().setInterceptors(
-                Collections.singletonList((request, body, execution) -> {
-                    request.getHeaders()
-                            .clearContentHeaders();
-                    return execution.execute(request, body);
-                })
-        );
+        prepareTestTemplateHeaders.cleanHeaders(template);
     }
 
     @Test

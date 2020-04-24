@@ -11,13 +11,6 @@ public class UserDto {
     private String username;
     private String fullName;
 
-    public User toUser() {
-        User user = new User();
-        user.setUsername(username);
-        user.setFullName(fullName);
-        return user;
-    }
-
     public static UserDto fromUser(User user) {
         UserDto userDto = new UserDto();
         userDto.setUsername(user.getUsername());

@@ -8,9 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.sberbank.card2card.exceptions.BankTransactionException;
 import ru.sberbank.card2card.model.Card;
 import ru.sberbank.card2card.model.Operation;
+import ru.sberbank.card2card.model.User;
 import ru.sberbank.card2card.repository.CardRepository;
 import ru.sberbank.card2card.service.CardService;
 import ru.sberbank.card2card.service.OperationService;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -80,6 +83,19 @@ public class CardServiceImpl implements CardService {
         } catch (BankTransactionException e) {
             throw new BankTransactionException(e.getMessage());
         }
+    }
+
+    @Override
+    public List<Card> findAllByUser(User user) {
+        List<Card> result = cardRepository.findAllByUser(user);
+
+        if (result.size() == 0) {
+            log.warn("IN findAllByUser - cards not found by user: {}", user);
+            return null;
+        }
+
+        log.info("IN findAllByUser - cards: {} found by user: {}", result, user);
+        return result;
     }
 
     private boolean validCardNumber(Card card) {

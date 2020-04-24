@@ -1,12 +1,13 @@
 package ru.sberbank.card2card.rest;
 
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-@Repository
+@Component
 public class PrepareTestDataBase {
 
     @PersistenceContext
@@ -82,7 +83,12 @@ public class PrepareTestDataBase {
         entityManager.createNativeQuery("INSERT INTO operations(sender_card, payee_card, transfer_amount) VALUES(?, ?, ?)")
                 .setParameter(1, 1000100010001002L)
                 .setParameter(2, 1000100010001001L)
-                .setParameter(3, 500)
+                .setParameter(3, 600)
+                .executeUpdate();
+        entityManager.createNativeQuery("INSERT INTO operations(sender_card, payee_card, transfer_amount) VALUES(?, ?, ?)")
+                .setParameter(1, 1000100010001001L)
+                .setParameter(2, 1000100010001002L)
+                .setParameter(3, 100)
                 .executeUpdate();
     }
 

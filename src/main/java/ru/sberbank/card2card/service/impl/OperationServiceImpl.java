@@ -9,6 +9,7 @@ import ru.sberbank.card2card.repository.OperationRepository;
 import ru.sberbank.card2card.service.OperationService;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -29,7 +30,15 @@ public class OperationServiceImpl implements OperationService {
     }
 
     @Override
-    public List<Operation> findByPayeeCard(Card card) {
-        return null;
+    public List<Operation> findAllByCardNumber(Long card) {
+        List<Operation> result = operationRepository.findAllByCardNumber(card);
+
+        if (result.size() == 0) {
+            log.warn("IN findAllByCard - operations not found by card: {}", card);
+            return null;
+        }
+
+        log.info("IN findAllByCard - operations: {} successfully found by card: {}", result, card);
+        return result;
     }
 }
