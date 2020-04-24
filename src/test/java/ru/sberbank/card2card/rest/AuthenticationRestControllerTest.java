@@ -1,23 +1,40 @@
 package ru.sberbank.card2card.rest;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import ru.sberbank.card2card.dto.AuthRequestDto;
-import ru.sberbank.card2card.dto.AuthResponseDto;
-import ru.sberbank.card2card.dto.UserDto;
-import ru.sberbank.card2card.dto.UserRegistrationDto;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import ru.sberbank.card2card.dto.*;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(SpringExtension.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AuthenticationRestControllerTest {
 
     @Autowired
     private TestRestTemplate template;
+    @Autowired
+    private PrepareTestDataBase prepareTestDataBase;
+
+    @BeforeAll
+    public void insertValuesInDataBase() {
+        prepareTestDataBase.insertValues();
+    }
+
+    @AfterAll
+    public void clearDataBase() {
+        prepareTestDataBase.clearTables();
+    }
 
     @Test
     public void correctUserLoginAndPasswordAuth_shouldSucceedWith200() {
@@ -69,7 +86,7 @@ class AuthenticationRestControllerTest {
     }
 
     @Test
-    public void userRegistration_shouldCreate201() {
+    public void correctUserRegistration_shouldCreate201() {
         UserRegistrationDto userRegistrationDto = new UserRegistrationDto();
         userRegistrationDto.setUsername("user100");
         userRegistrationDto.setFullName("FIO");
@@ -78,5 +95,12 @@ class AuthenticationRestControllerTest {
         ResponseEntity<UserDto> result = template.postForEntity("/api/auth/registration", userRegistrationDto, UserDto.class);
         assertEquals(HttpStatus.CREATED, result.getStatusCode());
         assertEquals(result.getBody(), UserDto.fromUser(userRegistrationDto.toUser()));
+    }
+
+    @Test
+    public void requestOnPrivateServiceWithOutAuthenticationToken_shouldForbidden403() {
+        Long cardNumber = 1000100010005555L;
+        ResponseEntity<CardDto> responseEntity = template.postForEntity("/api/card/add", cardNumber, CardDto.class);
+        assertEquals(responseEntity.getStatusCode(), HttpStatus.FORBIDDEN);
     }
 }

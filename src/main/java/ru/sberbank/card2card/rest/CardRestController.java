@@ -1,6 +1,7 @@
 package ru.sberbank.card2card.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -74,11 +75,11 @@ public class CardRestController {
         }
     }
 
-    @PutMapping(value = "balance/add_amount")
+    @PostMapping(value = "balance/add_amount")
     public ResponseEntity<CardDto> addAmountToCard(@RequestBody AddAmountRequestDto requestDto) throws BankTransactionException {
         try {
             if (requestDto.getAmount() <= 0)
-                throw new IllegalArgumentException("Incorrect amount");
+                throw new BankTransactionException("Incorrect amount");
 
             Card card = cardService.addAmount(requestDto.getCardNumber(), requestDto.getAmount());
 
@@ -88,23 +89,36 @@ public class CardRestController {
         }
     }
 
-    @PutMapping(value = "send_money")
+    @GetMapping(value = "send_money/{card_number}")
+    public ResponseEntity<String> moneyTransferHelper(@PathVariable(name = "card_number") Long toCard) throws BankTransactionException {
+        try {
+            Card card = cardService.findByCardNumber(toCard);
+            if (card == null)
+                throw new BankTransactionException("Card: " + toCard + " not found");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", "/api/card/send_money/confirm");
+            return new ResponseEntity<>(card.getUser().getFullName(), headers, HttpStatus.OK);
+        } catch (BankTransactionException e) {
+            throw new BankTransactionException(e.getMessage());
+        }
+    }
+
+    @PostMapping(value = "send_money/confirm")
     public ResponseEntity<String> moneyTransfer(@RequestBody MoneyTransferDto transferDto) throws BankTransactionException {
         String loggedInUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         try {
-            Card card = cardService.findByCardNumber(transferDto.getFromCard());
-            if (card == null)
-                throw new BankTransactionException("Card: " + transferDto.getFromCard() + " not found");
+            if (!transferDto.getConfirm().equalsIgnoreCase("OK"))
+                throw new BankTransactionException("Operation denied");
 
+            Card card = cardService.findByCardNumber(transferDto.getFromCard());
             if (!loggedInUsername.equals(card.getUser().getUsername()))
                 throw new BadCredentialsException("User: " + loggedInUsername + " is not a holder of card number: " + transferDto.getFromCard());
 
             cardService.sendMoney(transferDto.getFromCard(), transferDto.getToCard(), transferDto.getAmount());
-            return new ResponseEntity<>("Operation completed successfully\n", HttpStatus.ACCEPTED);
+            return new ResponseEntity<>("Operation completed successfully", HttpStatus.ACCEPTED);
         } catch (BankTransactionException e) {
             throw new BankTransactionException(e.getMessage());
-        } catch (BadCredentialsException e) {
-            throw new BadCredentialsException(e.getMessage());
         }
     }
 }

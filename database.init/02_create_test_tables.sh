@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-psql -v ON_ERROR_STOP=1 --username admin --dbname card2card_db <<-EOSQL
+psql -v ON_ERROR_STOP=1 --username admin --dbname card2card_db_test <<-EOSQL
   CREATE OR REPLACE FUNCTION update_changetimestamp_column()
     RETURNS TRIGGER AS
   \$\$

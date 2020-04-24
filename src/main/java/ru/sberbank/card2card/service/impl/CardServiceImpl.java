@@ -51,30 +51,35 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.MANDATORY)
     public Card addAmount(Long cardNumber, double amount) throws BankTransactionException {
-        Card card = findByCardNumber(cardNumber);
+        try {
+            Card card = findByCardNumber(cardNumber);
 
-        if (card == null)
-            throw new BankTransactionException("Card: " + cardNumber + " not found");
+            if (card == null)
+                throw new BankTransactionException("Card: " + cardNumber + " not found");
 
-        if (card.getBalance() + amount < 0)
-            throw new BankTransactionException("Not enough money on card: " + cardNumber);
+            if (card.getBalance() + amount < 0)
+                throw new BankTransactionException("Not enough money on card: " + cardNumber);
 
-        card.setBalance(card.getBalance() + amount);
-        card = cardRepository.save(card);
-        saveOperation(card, card, amount);
-        log.info("IN addAmount - amount: {} added to card: {}", amount, card);
-        return card;
+            card.setBalance(card.getBalance() + amount);
+            cardRepository.save(card);
+            log.info("IN addAmount - amount: {} added to card: {}", amount, card);
+            return card;
+        } catch (BankTransactionException e) {
+            throw new BankTransactionException(e.getMessage());
+        }
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = BankTransactionException.class)
     public void sendMoney(Long fromCardNumber, Long toCardNumber, double amount) throws BankTransactionException {
+        try {
             Card fromCard = addAmount(fromCardNumber, -amount);
             Card toCard = addAmount(toCardNumber, amount);
             log.info("IN sendMoney - amount: {} sent from card: {} to card: {}", amount, fromCard, toCard);
             saveOperation(fromCard, toCard, amount);
+        } catch (BankTransactionException e) {
+            throw new BankTransactionException(e.getMessage());
+        }
     }
 
     private boolean validCardNumber(Card card) {

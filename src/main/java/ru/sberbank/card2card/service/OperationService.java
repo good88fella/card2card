@@ -10,4 +10,5 @@ public interface OperationService {
     Operation saveOperation(Operation operation);
 
     List<Operation> findByPayeeCard(Card card);
+
 }

@@ -2,7 +2,6 @@ plugins {
     id 'org.springframework.boot' version '2.2.6.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'java'
-    id 'war'
 }
 
 group = 'ru.sberbank'
@@ -26,10 +25,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
-    providedCompile group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
     annotationProcessor 'org.projectlombok:lombok:1.18.12'
     runtimeOnly 'org.postgresql:postgresql'
-    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    runtime 'org.springframework.boot:spring-boot-starter-tomcat'
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
@@ -38,4 +37,12 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'ru.sberbank.card2card.Card2cardApplication'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }

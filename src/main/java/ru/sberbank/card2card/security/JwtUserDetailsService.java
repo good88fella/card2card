@@ -15,12 +15,8 @@ import ru.sberbank.card2card.service.UserService;
 @Slf4j
 public class JwtUserDetailsService implements UserDetailsService {
 
-    private final UserService userService;
-
     @Autowired
-    public JwtUserDetailsService(UserService userService) {
-        this.userService = userService;
-    }
+    private UserService userService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

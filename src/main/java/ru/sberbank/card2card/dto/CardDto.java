@@ -16,7 +16,7 @@ public class CardDto {
         CardDto cardDto = new CardDto();
         cardDto.setCardNumber(card.getCardNumber());
         cardDto.setUsername(card.getUser().getUsername());
-        card.setBalance(card.getBalance());
+        cardDto.setBalance(card.getBalance());
         return cardDto;
     }
 }
