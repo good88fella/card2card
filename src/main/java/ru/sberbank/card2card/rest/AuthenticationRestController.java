@@ -41,42 +41,32 @@ public class AuthenticationRestController {
 
     @PostMapping(value = "login")
     public ResponseEntity<AuthResponseDto> login(@RequestBody AuthRequestDto requestDto) {
-        try {
-            String username = requestDto.getUsername();
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, requestDto.getPassword()));
-            User user = userService.findByUsername(username);
+        String username = requestDto.getUsername();
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, requestDto.getPassword()));
+        User user = userService.findByUsername(username);
 
-            if (user == null)
-                throw new UsernameNotFoundException("User with username: " + username + " not found");
+        if (user == null)
+            throw new UsernameNotFoundException("User with username: " + username + " not found");
 
-            String token = jwtTokenProvider.createToken(username);
-            AuthResponseDto responseDto = new AuthResponseDto();
-            responseDto.setUsername(username);
-            responseDto.setToken(token);
+        String token = jwtTokenProvider.createToken(username);
+        AuthResponseDto responseDto = new AuthResponseDto();
+        responseDto.setUsername(username);
+        responseDto.setToken(token);
 
-            return ResponseEntity.ok(responseDto);
-        } catch (AuthenticationException e) {
-            throw new BadCredentialsException("Invalid username or password");
-        }
+        return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping(value = "registration")
     public ResponseEntity<UserDto> userRegistration(@RequestBody UserRegistrationDto requestDto) {
-        try {
-            if (userService.findByUsername(requestDto.getUsername()) != null)
-                throw new UserAlreadyExistsException("User with username: " + requestDto.getUsername() + " already exist");
+        if (userService.findByUsername(requestDto.getUsername()) != null)
+            throw new UserAlreadyExistsException("User with username: " + requestDto.getUsername() + " already exist");
 
-            if (!requestDto.getPassword().equals(requestDto.getConfirmPassword()))
-                throw new ConfirmPasswordException("Passwords do not match");
+        if (!requestDto.getPassword().equals(requestDto.getConfirmPassword()))
+            throw new ConfirmPasswordException("Passwords do not match");
 
-            User user = requestDto.toUser();
-            user = userService.register(user);
+        User user = requestDto.toUser();
+        user = userService.register(user);
 
-            return new ResponseEntity<>(UserDto.fromUser(user), HttpStatus.CREATED);
-        } catch (UserAlreadyExistsException e) {
-            throw new UserAlreadyExistsException(e.getMessage());
-        } catch (ConfirmPasswordException e) {
-            throw new ConfirmPasswordException(e.getMessage());
-        }
+        return new ResponseEntity<>(UserDto.fromUser(user), HttpStatus.CREATED);
     }
 }

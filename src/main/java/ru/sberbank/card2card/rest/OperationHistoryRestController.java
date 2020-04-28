@@ -36,30 +36,26 @@ public class OperationHistoryRestController {
     @GetMapping(value = "sum")
     public ResponseEntity<List<OperationDto>> getHistoryByTheAmountOfTransfers(@RequestParam String order) {
         String loggedInUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        try {
-            User user = userService.findByUsername(loggedInUsername);
-            List<Card> userCards = cardService.findAllByUser(user);
+        User user = userService.findByUsername(loggedInUsername);
+        List<Card> userCards = cardService.findAllByUser(user);
 
-            if (userCards == null)
-                throw new CardNotFoundException("User: " + user.getUsername() + " has no cards");
+        if (userCards == null)
+            throw new CardNotFoundException("User: " + user.getUsername() + " has no cards");
 
-            List<OperationDto> result = new ArrayList<>();
-            for (Card card : userCards) {
-                List<Operation> operations = operationService.findAllByCardNumber(card.getCardNumber());
+        List<OperationDto> result = new ArrayList<>();
+        for (Card card : userCards) {
+            List<Operation> operations = operationService.findAllByCardNumber(card.getCardNumber());
 
-                if (operations == null)
-                    return new ResponseEntity<>(HttpStatus.OK);
+            if (operations == null)
+                return new ResponseEntity<>(HttpStatus.OK);
 
-                for (Operation operation : operations)
-                    result.add(OperationDto.fromOperation(operation));
-            }
-            if (order.equalsIgnoreCase("ASC"))
-                result.sort(Comparator.comparing(OperationDto::getTransferAmount));
-            else if (order.equalsIgnoreCase("DESC"))
-                result.sort(Comparator.comparing(OperationDto::getTransferAmount).reversed());
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        } catch (CardNotFoundException e) {
-            throw new CardNotFoundException(e.getMessage());
+            for (Operation operation : operations)
+                result.add(OperationDto.fromOperation(operation));
         }
+        if (order.equalsIgnoreCase("ASC"))
+            result.sort(Comparator.comparing(OperationDto::getTransferAmount));
+        else if (order.equalsIgnoreCase("DESC"))
+            result.sort(Comparator.comparing(OperationDto::getTransferAmount).reversed());
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }
