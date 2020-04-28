@@ -1,7 +1,6 @@
 package ru.sberbank.card2card.model;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 
@@ -10,7 +9,7 @@ import java.util.Date;
 
 @MappedSuperclass
 @Data
-public class BaseEntity {
+public abstract class BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,9 +14,7 @@ import ru.sberbank.card2card.security.jwt.JwtTokenProvider;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private static final String CARD_ENDPOINT = "/api/card/**";
     private static final String AUTH_ENDPOINT = "/api/auth/**";
-    private static final String HISTORY_ENDPOINT = "/api/operations/history/**";
 
     @Autowired
     public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
@@ -36,8 +34,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().authorizeRequests()
                 .antMatchers(AUTH_ENDPOINT).permitAll()
-                .antMatchers(CARD_ENDPOINT).authenticated()
-                .antMatchers(HISTORY_ENDPOINT).authenticated()
                 .anyRequest().authenticated()
                 .and().apply(new JwtConfigurer(jwtTokenProvider));
     }

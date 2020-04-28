@@ -3,8 +3,6 @@ package ru.sberbank.card2card.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import ru.sberbank.card2card.exceptions.BankTransactionException;
 import ru.sberbank.card2card.model.Card;
 import ru.sberbank.card2card.model.Operation;
@@ -55,34 +53,26 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public Card addAmount(Long cardNumber, double amount) throws BankTransactionException {
-        try {
-            Card card = findByCardNumber(cardNumber);
+        Card card = findByCardNumber(cardNumber);
 
-            if (card == null)
-                throw new BankTransactionException("Card: " + cardNumber + " not found");
+        if (card == null)
+            throw new BankTransactionException("Card: " + cardNumber + " not found");
 
-            if (card.getBalance() + amount < 0)
-                throw new BankTransactionException("Not enough money on card: " + cardNumber);
+        if (card.getBalance() + amount < 0)
+            throw new BankTransactionException("Not enough money on card: " + cardNumber);
 
-            card.setBalance(card.getBalance() + amount);
-            cardRepository.save(card);
-            log.info("IN addAmount - amount: {} added to card: {}", amount, card);
-            return card;
-        } catch (BankTransactionException e) {
-            throw new BankTransactionException(e.getMessage());
-        }
+        card.setBalance(card.getBalance() + amount);
+        cardRepository.save(card);
+        log.info("IN addAmount - amount: {} added to card: {}", amount, card);
+        return card;
     }
 
     @Override
     public void sendMoney(Long fromCardNumber, Long toCardNumber, double amount) throws BankTransactionException {
-        try {
-            Card fromCard = addAmount(fromCardNumber, -amount);
-            Card toCard = addAmount(toCardNumber, amount);
-            log.info("IN sendMoney - amount: {} sent from card: {} to card: {}", amount, fromCard, toCard);
-            saveOperation(fromCard, toCard, amount);
-        } catch (BankTransactionException e) {
-            throw new BankTransactionException(e.getMessage());
-        }
+        Card fromCard = addAmount(fromCardNumber, -amount);
+        Card toCard = addAmount(toCardNumber, amount);
+        log.info("IN sendMoney - amount: {} sent from card: {} to card: {}", amount, fromCard, toCard);
+        saveOperation(fromCard, toCard, amount);
     }
 
     @Override
