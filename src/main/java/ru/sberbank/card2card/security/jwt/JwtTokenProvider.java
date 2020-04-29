@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import ru.sberbank.card2card.exceptions.JwtAuthenticationException;
 import ru.sberbank.card2card.model.Role;
 
 import javax.annotation.PostConstruct;

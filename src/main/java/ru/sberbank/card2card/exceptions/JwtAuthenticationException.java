@@ -1,4 +1,4 @@
-package ru.sberbank.card2card.security.jwt;
+package ru.sberbank.card2card.exceptions;
 
 import org.springframework.security.core.AuthenticationException;
 

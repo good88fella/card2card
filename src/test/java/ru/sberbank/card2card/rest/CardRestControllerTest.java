@@ -65,10 +65,7 @@ class CardRestControllerTest {
         Long cardNumber = 100010001000L;
         ResponseEntity<InvalidCardNumberException> responseEntity = template.postForEntity("/api/card/add", cardNumber,
                 InvalidCardNumberException.class);
-        String actual = Objects.requireNonNull(responseEntity.getBody()).getMessage();
-        String expected = "Incorrect card number: " + cardNumber;
         assertEquals(responseEntity.getStatusCode(), HttpStatus.CONFLICT);
-        assertEquals(expected, actual);
     }
 
     @Test
@@ -76,10 +73,7 @@ class CardRestControllerTest {
         Long cardNumber = 1000100010001001L;
         ResponseEntity<CardAlreadyExistsException> responseEntity = template.postForEntity("/api/card/add",
                 cardNumber, CardAlreadyExistsException.class);
-        String actual = Objects.requireNonNull(responseEntity.getBody()).getMessage();
-        String expected = "Card with card number: " + cardNumber + " already added";
         assertEquals(responseEntity.getStatusCode(), HttpStatus.CONFLICT);
-        assertEquals(expected, actual);
     }
 
     @Test
