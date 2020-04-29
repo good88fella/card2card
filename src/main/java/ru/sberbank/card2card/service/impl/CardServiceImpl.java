@@ -3,6 +3,7 @@ package ru.sberbank.card2card.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.sberbank.card2card.exceptions.BankTransactionException;
 import ru.sberbank.card2card.model.Card;
 import ru.sberbank.card2card.model.Operation;
@@ -68,6 +69,7 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
+    @Transactional
     public void sendMoney(Long fromCardNumber, Long toCardNumber, double amount) throws BankTransactionException {
         Card fromCard = addAmount(fromCardNumber, -amount);
         Card toCard = addAmount(toCardNumber, amount);

@@ -50,7 +50,7 @@ class CardRestControllerTest {
     @Test
     public void addCard_shouldCreated201() {
         Long cardNumber = 1000100010003333L;
-        ResponseEntity<CardDto> responseEntity = template.postForEntity("/api/card/add", cardNumber, CardDto.class);
+        ResponseEntity<CardDto> responseEntity = template.postForEntity("/api/card", cardNumber, CardDto.class);
         CardDto actual = responseEntity.getBody();
         CardDto expected = new CardDto();
         expected.setCardNumber(cardNumber);
@@ -63,7 +63,7 @@ class CardRestControllerTest {
     @Test
     public void addCardWithInvalidCardNumber_shouldConflict409() {
         Long cardNumber = 100010001000L;
-        ResponseEntity<InvalidCardNumberException> responseEntity = template.postForEntity("/api/card/add", cardNumber,
+        ResponseEntity<InvalidCardNumberException> responseEntity = template.postForEntity("/api/card", cardNumber,
                 InvalidCardNumberException.class);
         assertEquals(responseEntity.getStatusCode(), HttpStatus.CONFLICT);
     }
@@ -71,7 +71,7 @@ class CardRestControllerTest {
     @Test
     public void addDuplicateCard() {
         Long cardNumber = 1000100010001001L;
-        ResponseEntity<CardAlreadyExistsException> responseEntity = template.postForEntity("/api/card/add",
+        ResponseEntity<CardAlreadyExistsException> responseEntity = template.postForEntity("/api/card",
                 cardNumber, CardAlreadyExistsException.class);
         assertEquals(responseEntity.getStatusCode(), HttpStatus.CONFLICT);
     }
@@ -112,7 +112,7 @@ class CardRestControllerTest {
         AddAmountRequestDto requestDto = new AddAmountRequestDto();
         requestDto.setCardNumber(cardNumber);
         requestDto.setAmount(1000.00);
-        ResponseEntity<CardDto> responseEntity = template.postForEntity("/api/card/balance/add_amount",
+        ResponseEntity<CardDto> responseEntity = template.postForEntity("/api/card/balance",
                 requestDto, CardDto.class);
         CardDto actual = responseEntity.getBody();
         CardDto expected = new CardDto();
@@ -129,7 +129,7 @@ class CardRestControllerTest {
         AddAmountRequestDto requestDto = new AddAmountRequestDto();
         requestDto.setCardNumber(cardNumber);
         requestDto.setAmount(-1000.00);
-        ResponseEntity<BankTransactionException> responseEntity = template.postForEntity("/api/card/balance/add_amount",
+        ResponseEntity<BankTransactionException> responseEntity = template.postForEntity("/api/card/balance",
                 requestDto, BankTransactionException.class);
         String actual = Objects.requireNonNull(responseEntity.getBody()).getMessage();
         String expected = "Incorrect amount";
@@ -140,7 +140,7 @@ class CardRestControllerTest {
     @Test
     public void getInfoAboutCardHolder_shouldOk200() {
         long toCard = 1000100010001002L;
-        ResponseEntity<String> responseEntity = template.getForEntity("/api/card/send_money/" + toCard, String.class);
+        ResponseEntity<String> responseEntity = template.getForEntity("/api/card/send-money/" + toCard, String.class);
         String actual = responseEntity.getBody();
         String expected = "Ivanov Ivan Ivanovich";
         assertEquals(responseEntity.getStatusCode(), HttpStatus.OK);
@@ -157,7 +157,7 @@ class CardRestControllerTest {
         transferDto.setAmount(100.00);
         transferDto.setConfirm("OK");
 
-        ResponseEntity<String> responseEntity = template.postForEntity("/api/card/send_money/confirm", transferDto, String.class);
+        ResponseEntity<String> responseEntity = template.postForEntity("/api/card/send-money/confirm", transferDto, String.class);
         String actual = responseEntity.getBody();
         String expected = "Operation completed successfully";
         assertEquals(responseEntity.getStatusCode(), HttpStatus.ACCEPTED);
@@ -174,7 +174,7 @@ class CardRestControllerTest {
         transferDto.setAmount(10000.00);
         transferDto.setConfirm("OK");
 
-        ResponseEntity<BankTransactionException> responseEntity = template.postForEntity("/api/card/send_money/confirm", transferDto,
+        ResponseEntity<BankTransactionException> responseEntity = template.postForEntity("/api/card/send-money/confirm", transferDto,
                 BankTransactionException.class);
         String actual = Objects.requireNonNull(responseEntity.getBody()).getMessage();
         String expected = "Not enough money on card: " + fromCard;
@@ -192,7 +192,7 @@ class CardRestControllerTest {
         transferDto.setAmount(100.00);
         transferDto.setConfirm("NO");
 
-        ResponseEntity<BankTransactionException> responseEntity = template.postForEntity("/api/card/send_money/confirm", transferDto,
+        ResponseEntity<BankTransactionException> responseEntity = template.postForEntity("/api/card/send-money/confirm", transferDto,
                 BankTransactionException.class);
         String actual = Objects.requireNonNull(responseEntity.getBody()).getMessage();
         String expected = "Operation denied";
@@ -210,7 +210,7 @@ class CardRestControllerTest {
         transferDto.setAmount(100.00);
         transferDto.setConfirm("OK");
 
-        ResponseEntity<BadCredentialsException> responseEntity = template.postForEntity("/api/card/send_money/confirm", transferDto,
+        ResponseEntity<BadCredentialsException> responseEntity = template.postForEntity("/api/card/send-money/confirm", transferDto,
                 BadCredentialsException.class);
         String actual = Objects.requireNonNull(responseEntity.getBody()).getMessage();
         String expected = "Access Denied";

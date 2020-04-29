@@ -19,7 +19,7 @@ import ru.sberbank.card2card.service.CardService;
 import ru.sberbank.card2card.service.UserService;
 
 @RestController
-@RequestMapping(value = "/api/card/")
+@RequestMapping(value = "/api/card")
 public class CardRestController {
 
     private final UserService userService;
@@ -31,7 +31,7 @@ public class CardRestController {
         this.cardService = cardService;
     }
 
-    @PostMapping(value = "add")
+    @PostMapping
     public ResponseEntity<CardDto> addCard(@RequestBody Long cardNumber) {
         String loggedInUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         if (cardService.findByCardNumber(cardNumber) != null)
@@ -49,7 +49,7 @@ public class CardRestController {
         return new ResponseEntity<>(CardDto.fromCard(card), HttpStatus.CREATED);
     }
 
-    @GetMapping(value = "balance/{card_number}")
+    @GetMapping(value = "/balance/{card_number}")
     public ResponseEntity<Double> showCardBalance(@PathVariable(name = "card_number") Long cardNumber) {
         String loggedInUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         Card card = cardService.findByCardNumber(cardNumber);
@@ -63,7 +63,7 @@ public class CardRestController {
         return new ResponseEntity<>(card.getBalance(), HttpStatus.OK);
     }
 
-    @PostMapping(value = "balance/add_amount")
+    @PostMapping(value = "/balance")
     public ResponseEntity<CardDto> addAmountToCard(@RequestBody AddAmountRequestDto requestDto) throws BankTransactionException {
         if (requestDto.getAmount() <= 0)
             throw new BankTransactionException("Incorrect amount");
@@ -73,18 +73,18 @@ public class CardRestController {
         return new ResponseEntity<>(CardDto.fromCard(card), HttpStatus.ACCEPTED);
     }
 
-    @GetMapping(value = "send_money/{card_number}")
+    @GetMapping(value = "/send-money/{card_number}")
     public ResponseEntity<String> moneyTransferHelper(@PathVariable(name = "card_number") Long toCard) throws BankTransactionException {
         Card card = cardService.findByCardNumber(toCard);
         if (card == null)
             throw new BankTransactionException("Card: " + toCard + " not found");
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "/api/card/send_money/confirm");
+        headers.add("Location", "/api/card/send-money/confirm");
         return new ResponseEntity<>(card.getUser().getFullName(), headers, HttpStatus.OK);
     }
 
-    @PostMapping(value = "send_money/confirm")
+    @PostMapping(value = "/send-money/confirm")
     public ResponseEntity<String> moneyTransfer(@RequestBody MoneyTransferDto transferDto) throws BankTransactionException {
         String loggedInUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!transferDto.getConfirm().equalsIgnoreCase("OK"))
